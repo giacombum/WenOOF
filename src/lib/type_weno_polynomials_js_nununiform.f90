@@ -61,6 +61,7 @@ contains
 
   !---------------------------------------------------------------------------------------------------------------------------------
   if (allocated(self%coef)) deallocate(self%coef)
+  if (allocated(self%poly)) deallocate(self%poly)
   return
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine destroy
@@ -69,7 +70,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO polynomials coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_nonuniform), intent(inout) :: self      !< WENO polynomials.
+  class(weno_polynomials_nonuniform), intent(inout) :: self   !< WENO polynomials.
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(I_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
   real(R_P)                :: coord(1:, 1 - S:)               !< Abscissas used for interpolation, [1:2, 1-S:-1+S].
@@ -125,7 +126,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Return a string describing WENO polynomial.
   !---------------------------------------------------------------------------------------------------------------------------------
-  character(len=:), allocatable, intent(out) :: string !< String returned.
+  character(len=:), allocatable, intent(out) :: string            !< String returned.
   character(len=1), parameter                :: nl=new_line('a')  !< New line character.
   !---------------------------------------------------------------------------------------------------------------------------------
 
