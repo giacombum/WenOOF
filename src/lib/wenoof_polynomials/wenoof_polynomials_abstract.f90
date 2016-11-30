@@ -1,4 +1,4 @@
-module type_weno_polynomials
+module wenoof_polynomials_abstract
 !-----------------------------------------------------------------------------------------------------------------------------------
 !< Abstract WENO polynomials object.
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -11,11 +11,11 @@ use penf, only : I_P, R_P
 implicit none
 private
 save
-public :: weno_polynomials
+public :: polynomials
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-type, abstract :: weno_polynomials
+type, abstract :: polynomials
   !< WENO polynomials.
   !<
   !< @note Do not implement any real polynomial: provide the interface for the different polynomials implemented.
@@ -26,7 +26,7 @@ type, abstract :: weno_polynomials
     procedure(constructor_interface), pass(self), deferred, public :: create
     procedure(description_interface), nopass,     deferred, public :: description
     procedure(compute_interface),     pass(self), deferred, public :: compute
-endtype weno_polynomials
+endtype polynomials
 
 abstract interface
   !< Destroy WENO polynomials.
@@ -34,8 +34,8 @@ abstract interface
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Destroy WENO polynomials.
   !---------------------------------------------------------------------------------------------------------------------------------
-  import :: weno_polynomials
-  class(weno_polynomials), intent(inout) :: self   !< WENO polynomials.
+  import :: polynomials
+  class(polynomials), intent(inout) :: self   !< WENO polynomials.
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine destructor_interface
 endinterface
@@ -48,9 +48,9 @@ abstract interface
   !
   !< @note Before call this method a concrete constructor must be instantiated.
   !---------------------------------------------------------------------------------------------------------------------------------
-  import :: weno_polynomials, I_P
-  class(weno_polynomials),             intent(inout) :: self          !< WENO polynomials.
-  integer(I_P),                        intent(in)    :: S             !< Stencil dimension.
+  import :: polynomials, I_P
+  class(polynomials),             intent(inout) :: self          !< WENO polynomials.
+  integer(I_P),                   intent(in)    :: S             !< Stencil dimension.
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine constructor_interface
 endinterface
@@ -72,14 +72,14 @@ abstract interface
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Compute the partial value of the interpolating polynomial.
   !---------------------------------------------------------------------------------------------------------------------------------
-  import :: weno_polynomials, I_P, R_P
-  class(weno_polynomials), intent(inout) :: self                    !< WENO polynomial.
-  integer(I_P),            intent(in)    :: S                       !< Number of stencils actually used.
-  real(R_P),               intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
-  integer(I_P),            intent(in)    :: f1, f2, ff              !< Faces to be computed.
-  integer(I_P)                           :: s1, s2, f               !< Counters
+  import :: polynomials, I_P, R_P
+  class(polynomials), intent(inout) :: self                    !< WENO polynomial.
+  integer(I_P),       intent(in)    :: S                       !< Number of stencils actually used.
+  real(R_P),          intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
+  integer(I_P),       intent(in)    :: f1, f2, ff              !< Faces to be computed.
+  integer(I_P)                      :: s1, s2, f               !< Counters
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine compute_interface
 endinterface
 !-----------------------------------------------------------------------------------------------------------------------------------
-endmodule type_weno_polynomials
+endmodule wenoof_polynomials_abstract

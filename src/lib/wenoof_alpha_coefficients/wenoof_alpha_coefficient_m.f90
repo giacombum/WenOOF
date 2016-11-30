@@ -1,66 +1,65 @@
-module type_weno_alpha_coefficient_z
+module wenoof_alpha_coefficient_m
 !-----------------------------------------------------------------------------------------------------------------------------------
-!< Module providing Borges et al. alpha coefficient for WENO schemes.
+!< Module providing Henrick alpha coefficient for WENO schemes.
 !<
-!< @note The provided WENO alpha coefficient implements the alpha coefficients defined in *An improved weighted essentially
-!< non-oscillatory scheme for hyperbolic conservation laws*, Rafael Borges, Monique Carmona, Bruno Costa and Wai Sun Don, JCP, 2008,
-!< vol. 227, pp. 3191-3211, doi: 10.1016/j.jcp.2007.11.038.
+!< @note The provided WENO alpha coefficient implements the alpha coefficients defined in *Mapped weighted essentially
+!< non-oscillatory schemes: Achieving optimal order near critical points*, Andrew K. Henrick, Tariq D. Aslam, Joseph M. Powers, JCP,
+!< 2005, vol. 207, pp. 542-567, doi:10.1016/j.jcp.2005.01.023
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use penf, only : I_P, R_P
-use type_weno_alpha_coefficient
-use type_weno_alpha_coefficient_js
+use wenoof_alpha_coefficient_abstract
+use wenoof_alpha_coefficient_js
+use wenoof_alpha_coefficient_z
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 implicit none
 private
 save
-public :: weno_alpha_coefficient_z, associate_WENO_alpha_z
+public :: alpha_coefficient_m, associate_alpha_m, initialize
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-type, extends(weno_alpha_coefficient_js) :: weno_alpha_coefficient_z
-  !< Borges et al. WENO alpha coefficient object.
+type, extends(alpha_coefficient_z) :: alpha_coefficient_m
+  !< Henrick WENO alpha coefficient object.
   !<
-  !< @note The provided WENO alpha coefficient implements the alpha coefficients defined in *An improved weighted essentially
-  !< non-oscillatory scheme for hyperbolic conservation laws*, Rafael Borges, Monique Carmona, Bruno Costa and Wai Sun Don, JCP, 2008,
-  !< vol. 227, pp. 3191-3211, doi: 10.1016/j.jcp.2007.11.038.
-  private
+  !< @note The provided WENO alpha coefficient implements the alpha coefficients defined in *Mapped weighted essentially
+  !< non-oscillatory schemes: Achieving optimal order near critical points*, Andrew K. Henrick, Tariq D. Aslam, Joseph M. Powers,
+  !< JCP, 2005, vol. 207, pp. 542-567, doi:10.1016/j.jcp.2005.01.023.
+  class(alpha_coefficient), allocatable :: alpha_base !< To be set into [[initialize]] method.
   contains
     ! deferred public methods
     procedure, nopass,     public :: description
     procedure, pass(self), public :: compute
     ! public methods
-    procedure, nopass,     public :: tau
-    procedure, nopass,     public :: weno_exp
-    procedure, nopass,     public :: weno_odd
-endtype weno_alpha_coefficient_z
+    procedure, pass(self), public :: initialize
+endtype alpha_coefficient_m
 !-----------------------------------------------------------------------------------------------------------------------------------
 contains
   ! public, non TBP
-  function associate_WENO_alpha_z(alpha_input) result(alpha_pointer)
-    !< Check the type of alpha coefficient passed as input and return a WENO Z alpha coefficient associated to alpha coefficient.
-    class(weno_alpha_coefficient), intent(in), target  :: alpha_input   !< Input alpha coefficient.
-    class(weno_alpha_coefficient_z),           pointer :: alpha_pointer !< WENO Z alpha coefficients.
+  function associate_alpha_m(alpha_input) result(alpha_pointer)
+    !< Check the type of alpha coefficient passed as input and return a WENO M alpha coefficient associated to alpha coefficient.
+    class(alpha_coefficient), intent(in), target  :: alpha_input   !< Input alpha coefficient.
+    class(alpha_coefficient_m),           pointer :: alpha_pointer !< WENO M alpha coefficients.
 
     select type(alpha_input)
-      type is(weno_alpha_coefficient_z)
+      type is(alpha_coefficient_m)
         alpha_pointer => alpha_input
       class default
         write(stderr, '(A)')'error: wrong alpha coefficient type chosen'
         stop
     end select
-  end function associate_WENO_alpha_z
+  end function associate_alpha_m
 
   ! deferred public methods
   pure subroutine destroy(self)
   !---------------------------------------------------------------------------------------------------------------------------------
-  !< Destroy Borges et al. WENO alpha coefficients.
+  !< Destroy Henrick WENO alpha coefficients.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_alpha_coefficient_z), intent(inout) :: self   !< WENO alpha coefficients.
+  class(alpha_coefficient_m), intent(inout) :: self   !< WENO alpha coefficients.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -74,8 +73,8 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO alpha coefficients.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_alpha_coefficient_z), intent(inout) :: self       !< WENO alpha coefficients.
-  integer(I_P),                    intent(in)    :: S          !< Number of stencils used.
+  class(alpha_coefficient_m), intent(inout) :: self       !< WENO alpha coefficients.
+  integer(I_P),               intent(in)    :: S          !< Number of stencils used.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -84,6 +83,7 @@ contains
   allocate(self%alpha_tot(1:2))
   self%alpha_coef(:,:) = 100000._R_P
   self%alpha_tot(:) = 0._R_P
+  call self%alpha_base%create(S = S)
   return
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine create
@@ -98,13 +98,12 @@ contains
 
   !---------------------------------------------------------------------------------------------------------------------------------
   string = 'WENO alpha coefficient'//nl
-  string = string//'  Based on the work by Borges, Carmona, Costa and Don "An improved weighted essentially non-oscillatory '// &
-           'scheme for hyperbolic conservation laws", see '// &
-           'JCP, 2008, vol. 227, pp. 3191--3211, doi:10.1016/j.jcp.2007.11.038'//nl
-  string = string//'  The "alpha" method has the following public API'//nl
-  string = string//'    alpha(S,weigt_opt,IS,eps)'//nl
+  string = string//'  Based on the work by Henrick, Aslam and Powers "Mapped weighted essentially non-oscillatory schemes: '// &
+                   'Achieving optimal order near critical points", see JCP, 2005, vol. 207, pp. 542--567, '// &
+                   'doi:10.1006/jcph.1996.0130'//nl
+  string = string//'  The "alpha_m" method has the following public API'//nl
+  string = string//'    alpha_m(IS,eps)'//nl
   string = string//'  where:'//nl
-  string = string//'    S: integer(I_P), intent(IN), the number of the stencils used'//nl
   string = string//'    weight_opt: real(R_P), intent(IN), the optimal weight of the actual stencil'//nl
   string = string//'    IS: real(R_P), intent(IN), the smoothness indicator of the actual stencil'//nl
   string = string//'    eps: real(R_P), intent(IN), the coefficient to avoid zero division used'//nl
@@ -117,63 +116,50 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Compute the alpha coefficient of the WENO interpolating polynomial.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_alpha_coefficient_z), intent(inout) :: self                          !< WENO alpha coefficient.
-  integer(I_P),                    intent(in)    :: S                             !< Number of stencils used.
-  real(R_P),                       intent(in)    :: weight_opt(1: 2, 0 : S - 1)   !< Optimal weight of the stencil.
-  real(R_P),                       intent(in)    :: IS(1: 2, 0 : S - 1)           !< Smoothness indicators of the stencils.
-  real(R_P),                       intent(in)    :: eps                           !< Parameter for avoiding divided by zero.
-  integer(I_P),                    intent(in)    :: f1, f2                        !< Faces to be computed.
-  integer(I_P)                                   :: f, s1                         !< Counters.
+  class(alpha_coefficient_m), intent(inout) :: self                         !< WENO alpha coefficient.
+  integer(I_P),               intent(in)    :: S                            !< Number of stencils used.
+  real(R_P),                  intent(in)    :: weight_opt(1: 2, 0: S - 1)   !< Optimal weight of the stencil.
+  real(R_P),                  intent(in)    :: IS(1: 2, 0: S - 1)           !< Smoothness indicators of the stencils.
+  real(R_P),                  intent(in)    :: eps                          !< Parameter for avoiding divided by zero.
+  integer(I_P),               intent(in)    :: f1, f2                       !< Faces to be computed.
+  integer(I_P)                              :: f, s1                        !< Counters.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
   self%alpha_tot = 0._R_P
+  call self%alpha_base%compute(S=S, weight_opt=weight_opt, IS=IS, eps=eps, f1=f1, f2=f2)
   do s1 = 0, S - 1 ! stencil loops
     do f = f1, f2 ! 1 => left interface (i-1/2), 2 => right interface (i+1/2)
-      self%alpha_coef(f, s1) = weight_opt(f, s1) * ((1._R_P + (tau(S,IS)/(eps+IS(f, s1)))) ** (weno_exp(S)))
+      self%alpha_coef(f, s1) = (self%alpha_base%alpha_coef(f, s1) * (weight_opt(f, s1) + weight_opt(f, s1) * weight_opt(f, s1) - &
+                          3._R_P * weight_opt(f, s1) * self%alpha_base%alpha_coef(f, s1) + self%alpha_base%alpha_coef(f, s1) * &
+                          self%alpha_base%alpha_coef(f, s1))) / &
+                          (weight_opt(f, s1) * weight_opt(f, s1) + self%alpha_base%alpha_coef(f, s1) * &
+                          (1._R_P - 2._R_P * weight_opt(f, s1)))
       self%alpha_tot(f) = self%alpha_tot(f) + self%alpha_coef(f, s1)
     enddo
   enddo
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine compute
 
-  pure function weno_exp(S) result(w_exp)
+  ! public methods
+  subroutine initialize(self, alpha_base)
   !---------------------------------------------------------------------------------------------------------------------------------
-  !< Compute the exponent used in the alpha function.
+  !< Create the alias for the base alpha coefficient function.
   !---------------------------------------------------------------------------------------------------------------------------------
-  integer(I_P), intent(in) :: S     !< Number of stencils used.
-  integer(I_P)             :: w_exp !< Exponent used in the alpha function.
-  !---------------------------------------------------------------------------------------------------------------------------------
-
-  !---------------------------------------------------------------------------------------------------------------------------------
-  w_exp = int(S, I_P)
-  !---------------------------------------------------------------------------------------------------------------------------------
-  endfunction weno_exp
-
-  pure function weno_odd(S) result(w_odd)
-  !---------------------------------------------------------------------------------------------------------------------------------
-  !< Compute the distinguisher between odd and even number of stencils.
-  !---------------------------------------------------------------------------------------------------------------------------------
-  integer(I_P), intent(in) :: S     !< Number of stencils used.
-  integer(I_P)             :: w_odd !< Distinguishing between odd and even number of stencils.
+  class(alpha_coefficient_m), intent(inout) :: self
+  character(*),               intent(in)    :: alpha_base
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
-  w_odd = int(mod(S, 2_I_P), I_P)
+  select case(alpha_base)
+  case('JS')
+    if (allocated(self%alpha_base)) deallocate(self%alpha_base)
+    allocate(alpha_coefficient_js :: self%alpha_base)
+  case('Z')
+    if (allocated(self%alpha_base)) deallocate(self%alpha_base)
+    allocate(alpha_coefficient_z :: self%alpha_base)
+  endselect
+  return
   !---------------------------------------------------------------------------------------------------------------------------------
-  endfunction weno_odd
-
-  pure function tau(S, IS) result(w_tau)
-  !---------------------------------------------------------------------------------------------------------------------------------
-  !< Compute the tau coefficient used in the WENO-Z alpha coefficient.
-  !---------------------------------------------------------------------------------------------------------------------------------
-  integer(I_P), intent(in) :: S           !< Number of stencils used.
-  real(R_P),    intent(in) :: IS(0:S - 1) !< Smoothness indicators.
-  real(R_P)                :: w_tau       !< Tau coefficient.
-  !---------------------------------------------------------------------------------------------------------------------------------
-
-  !---------------------------------------------------------------------------------------------------------------------------------
-  w_tau = abs(IS(0) - (1-weno_odd(S))*IS(1) - (1-weno_odd(S))*IS(S-2_I_P) + (1-2*weno_odd(S))*IS(S-1_I_P))
-  !---------------------------------------------------------------------------------------------------------------------------------
-  endfunction tau
-endmodule type_weno_alpha_coefficient_z
+  endsubroutine initialize
+endmodule wenoof_alpha_coefficient_m
