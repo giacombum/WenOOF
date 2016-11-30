@@ -56,7 +56,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Destroy Jiang-Shu polynomial coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_nonuniform), intent(inout) :: self   !< WENO polynomials.
+  class(weno_polynomials_js_nonuniform), intent(inout) :: self   !< WENO polynomials.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -70,13 +70,13 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO polynomials coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_nonuniform), intent(inout) :: self   !< WENO polynomials.
+  class(weno_polynomials_js_nonuniform), intent(inout) :: self   !< WENO polynomials.
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
-  real(I_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
-  real(R_P)                :: coord(1:, 1 - S:)               !< Abscissas used for interpolation, [1:2, 1-S:-1+S].
+  real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
+  real(R_P)                :: stencil_coord(1:, 1 - S:)       !< Abscissas of the interpolation stencil, [1:2, 1-S:-1+S].
   real(R_P)                :: den, num_prod, num, frac, coeff !< Intermediate values for coefficients evaluation.
   integer(I_P)             :: s1, s2, m, l, q                 !< Counters.
-  integer(I_P)             :: ff, f1, f2                      !< Faces to be computed.
+  integer(I_P)             :: f, f1, f2                       !< Faces to be computed.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -99,18 +99,18 @@ contains
             do l = 0, S
               ! denominator
               if (l==m) cycle
-              den = den * (coord(f,1 - S + s1 + m) -coord(f,1 - S + s1 + l))
+              den = den * (stencil_coord(f,1 - S + s1 + m) - stencil_coord(f,1 - S + s1 + l))
               ! numerator
               ! numerator product
               num_prod = 1._R_P
               do q = 0, S
                 if ((q==l).or.(q==m)) cycle
-                num_prod = num_prod * (coord_tar - coord(f,1 - S + s1 + q))
+                num_prod = num_prod * (coord_tar - stencil_coord(f,1 - S + s1 + q))
               enddo
               ! numerator sum
               num = num + num_prod
             enddo
-            frac = (num / den) * (coord(f,1 - S + s1 + s2) - coord(f,1 - S + s1 + s2 - 1))
+            frac = (num / den) * (stencil_coord(f,1 - S + s1 + s2) - stencil_coord(f,1 - S + s1 + s2 - 1))
             coeff = coeff + frac
           enddo
           c(f,s2,s1) = coeff
@@ -147,7 +147,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Compute the partial value of the interpolating polynomial.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_js), intent(inout) :: self                    !< WENO polynomial.
+  class(weno_polynomials_js_nonuniform), intent(inout) :: self                    !< WENO polynomial.
   integer(I_P),               intent(in)    :: S                       !< Number of stencils actually used.
   real(R_P),                  intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
   integer(I_P),               intent(in)    :: f1, f2, ff              !< Faces to be computed.
