@@ -1,4 +1,4 @@
-module type_weno_optimal_weights_js_nonuniform
+module wenoof_optimal_weights_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 !< Module providing Jiang-Shu and Gerolymos-Sénéchal-Vallet optimal weights for WENO schemes on non uniform grids.
 !<
@@ -10,19 +10,19 @@ module type_weno_optimal_weights_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use penf, only : I_P, R_P
-use type_weno_optimal_weights
-use type_weno_polynomials_js_nonuniform
+use wenoof_optimal_weights_abstract
+use wenoof_polynomials_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 implicit none
 private
 save
-public :: weno_optimal_weights_js_nonuniform, associate_WENO_weights_js_nonuniform
+public :: optimal_weights_js_nonuniform, associate_weights_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-type, extends(weno_optimal_weights):: weno_optimal_weights_js_nonuniform
+type, extends(optimal_weights):: optimal_weights_js_nonuniform
   !< Jiang-Shu and Gerolymos-Sénéchal-Vallet WENO optimal weights object.
   !<
   !< @note The provided WENO optimal weights implements the optimal weights defined in *Efficient Implementation of Weighted ENO
@@ -35,30 +35,30 @@ type, extends(weno_optimal_weights):: weno_optimal_weights_js_nonuniform
     procedure, pass(self), public :: destroy
     procedure, pass(self), public :: create
     procedure, nopass,     public :: description
-endtype weno_optimal_weights_js_nonuniform
+endtype optimal_weights_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 contains
   ! public, non TBP
   function associate_WENO_weights_js_nonuniform(weights_input) result(weights_pointer)
     !< Check the type of the optimal weights passed as input and return Jiang-Shu optimal weights associated to the optimal weights.
-    class(weno_optimal_weights),   intent(in), target  :: weights_input   !< Input optimal weights.
-    class(weno_optimal_weights_js_nonuniform), pointer :: weights_pointer !< Non uniform Jiang Shu optimal weights.
+    class(optimal_weights),   intent(in), target  :: weights_input   !< Input optimal weights.
+    class(optimal_weights_js_nonuniform), pointer :: weights_pointer !< Non uniform Jiang Shu optimal weights.
 
     select type(weights_input)
-      type is(weno_optimal_weights_js_nonuniform)
+      type is(optimal_weights_js_nonuniform)
         weights_pointer => weights_input
       class default
         write(stderr, '(A)')'error: wrong optimal weights type chosen'
         stop
     end select
-  end function associate_WENO_weights_js_nonuniform
+  end function associate_weights_js_nonuniform
 
   ! deferred public methods
   pure subroutine destroy(self)
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Destroy Jiang-Shu and Gerolymos-Sénéchal-Vallet WENO optimal weights for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_optimal_weights_js_nonuniform), intent(inout)  :: self   !< WENO optimal weights.
+  class(optimal_weights_js_nonuniform), intent(inout)  :: self   !< WENO optimal weights.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO optimal weights for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_optimal_weights_js_nonuniform), intent(inout) :: self       !< WENO Jiang-Shu optimal weights.
+  class(optimal_weights_js_nonuniform), intent(inout) :: self !< WENO Jiang-Shu optimal weights.
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(R_P), allocatable   :: coef(:,:)                       !< Polynomial coefficients on the whole recontruction stencil.
   real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
@@ -150,4 +150,4 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   endsubroutine description
 !-----------------------------------------------------------------------------------------------------------------------------------
-endmodule type_weno_optimal_weights_js_nonuniform
+endmodule wenoof_optimal_weights_js_nonuniform

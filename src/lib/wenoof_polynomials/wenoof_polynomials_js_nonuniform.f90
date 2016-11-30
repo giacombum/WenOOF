@@ -1,4 +1,4 @@
-module type_weno_polynomials_js_nonuniform
+module wenoof_polynomials_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 !< Module providing Lagrange polynomials for Jiang-Shu WENO schemes on non uniform grids.
 !<
@@ -10,18 +10,18 @@ module type_weno_polynomials_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 use, intrinsic :: iso_fortran_env, only : stderr=>error_unit
 use penf, only : I_P, R_P
-use type_weno_polynomials
+use weno_polynomials_abstract
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
 implicit none
 private
 save
-public :: weno_polynomials_js_nonuniform, associate_WENO_polynomials_js_nonuniform
+public :: polynomials_js_nonuniform, associate_polynomials_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-type, extends(weno_polynomials) :: weno_polynomials_js_nonuniform
+type, extends(polynomials) :: polynomials_js_nonuniform
   !< Lagrange polynomials for non Jiang-Shu WENO schemes on non uniform grids object.
   !<
   !< @note The provided polynomials implement the Lagrange polynomials defined in *Efficient implementation of WENO schemes to
@@ -33,30 +33,30 @@ type, extends(weno_polynomials) :: weno_polynomials_js_nonuniform
     procedure, pass(self), public :: create
     procedure, nopass,     public :: description
     procedure, pass(self), public :: compute
-endtype weno_polynomials_js_nonuniform
+endtype polynomials_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 contains
   ! public, non TBP
-  function associate_WENO_polynomials_js_nonuniform(polyn_input) result(polyn_pointer)
+  function associate_polynomials_js_nonuniform(polyn_input) result(polyn_pointer)
     !< Check the type of the polynomials passed as input and return non uniform Jiang-Shu polynomials associated to the polynomials.
-    class(weno_polynomials), intent(in),    target  :: polyn_input   !< Input optimal weights.
-    class(weno_polynomials_js_nonuniform),  pointer :: polyn_pointer !< Non uniform Jiang Shu optimal weights.
+    class(polynomials), intent(in),    target  :: polyn_input   !< Input optimal weights.
+    class(polynomials_js_nonuniform),  pointer :: polyn_pointer !< Non uniform Jiang Shu optimal weights.
 
     select type(polyn_input)
-      type is(weno_polynomials_js_nonuniform)
+      type is(polynomials_js_nonuniform)
         polyn_pointer => polyn_input
       class default
         write(stderr, '(A)')'error: wrong polynomials type chosen'
         stop
     end select
-  end function associate_WENO_polynomials_js_nonuniform
+  end function associate_polynomials_js_nonuniform
 
   ! deferred public methods
   pure subroutine destroy(self)
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Destroy Jiang-Shu polynomial coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_js_nonuniform), intent(inout) :: self   !< WENO polynomials.
+  class(polynomials_js_nonuniform), intent(inout) :: self   !< WENO polynomials.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO polynomials coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_js_nonuniform), intent(inout) :: self   !< WENO polynomials.
+  class(polynomials_js_nonuniform), intent(inout) :: self     !< WENO polynomials.
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
   real(R_P)                :: stencil_coord(1:, 1 - S:)       !< Abscissas of the interpolation stencil, [1:2, 1-S:-1+S].
@@ -147,11 +147,11 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Compute the partial value of the interpolating polynomial.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(weno_polynomials_js_nonuniform), intent(inout) :: self                    !< WENO polynomial.
-  integer(I_P),               intent(in)    :: S                       !< Number of stencils actually used.
-  real(R_P),                  intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
-  integer(I_P),               intent(in)    :: f1, f2, ff              !< Faces to be computed.
-  integer(I_P)                              :: s1, s2, f               !< Counters
+  class(polynomials_js_nonuniform), intent(inout) :: self                 !< WENO polynomial.
+  integer(I_P),                     intent(in)    :: S                    !< Number of stencils actually used.
+  real(R_P),                        intent(in)    :: stencil(1:, 1 - S:)  !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
+  integer(I_P),                     intent(in)    :: f1, f2, ff           !< Faces to be computed.
+  integer(I_P)                                    :: s1, s2, f            !< Counters
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -167,4 +167,4 @@ contains
   endsubroutine compute
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-endmodule type_weno_polynomials_js_nonuniform
+endmodule wenoof_polynomials_js_nonuniform
