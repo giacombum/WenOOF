@@ -2,7 +2,7 @@ module wenoof_optimal_weights_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 !< Module providing Jiang-Shu and Gerolymos-Sénéchal-Vallet optimal weights for WENO schemes on non uniform grids.
 !<
-!< @note The provided polynomials implement the Lagrange polynomials defined in *Efficient implementation of WENO schemes to
+!< @note The provided polynomials implement the optimal weights defined in *Efficient implementation of WENO schemes to
 !< nonuniform meshes*, Nelida Črnjarić-Žic, Senka Maćešić, Bojan Crnković, ANNALI DELL'UNIVERSITA' DI FERRARA, 2007, vol. 57,
 !< issue 2, pp. 199--215, doi:10.1007/s11565-007-0013-1
 !-----------------------------------------------------------------------------------------------------------------------------------
@@ -25,10 +25,9 @@ public :: optimal_weights_js_nonuniform, associate_weights_js_nonuniform
 type, extends(optimal_weights):: optimal_weights_js_nonuniform
   !< Jiang-Shu and Gerolymos-Sénéchal-Vallet WENO optimal weights object.
   !<
-  !< @note The provided WENO optimal weights implements the optimal weights defined in *Efficient Implementation of Weighted ENO
-  !< Schemes*, Guang-Shan Jiang, Chi-Wang Shu, JCP, 1996, vol. 126, pp. 202--228, doi:10.1006/jcph.1996.0130 and
-  !< *Very-high-order weno schemes*, G. A. Gerolymos, D. Sénéchal, I. Vallet, JCP, 2009, vol. 228, pp. 8481-8524,
-  !< doi:10.1016/j.jcp.2009.07.039
+  !< @note The provided polynomials implement the optimal weights defined in *Efficient implementation of WENO schemes to
+  !< nonuniform meshes*, Nelida Črnjarić-Žic, Senka Maćešić, Bojan Crnković, ANNALI DELL'UNIVERSITA' DI FERRARA, 2007, vol. 57,
+  !< issue 2, pp. 199--215, doi:10.1007/s11565-007-0013-1
   private
   contains
     ! deferred public methods

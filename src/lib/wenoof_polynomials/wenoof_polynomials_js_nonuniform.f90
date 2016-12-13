@@ -73,7 +73,7 @@ contains
   class(polynomials_js_nonuniform), intent(inout) :: self     !< WENO polynomials.
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
-  real(R_P)                :: stencil_coord(1:, 1 - S:)       !< Abscissas of the interpolation stencil, [1:2, 1-S:-1+S].
+  real(R_P)                :: stencil_coord(1:, 1 - S:)       !< Abscissas of the stencil interfaces, [1:2, 1-S:-1+S].
   real(R_P)                :: den, num_prod, num, frac, coeff !< Intermediate values for coefficients evaluation.
   integer(I_P)             :: s1, s2, m, l, q                 !< Counters.
   integer(I_P)             :: f, f1, f2                       !< Faces to be computed.
