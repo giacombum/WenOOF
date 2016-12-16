@@ -74,7 +74,7 @@ contains
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
   real(R_P)                :: stencil_coord(1:, 1 - S:)       !< Abscissas of the stencil interfaces, [1:2, 1-S:-1+S].
-  real(R_P)                :: den, num_prod, num, frac, coeff !< Intermediate values for coefficients evaluation.
+  real(R_P)                :: den, num_prod, num, coeff       !< Intermediate values for coefficients evaluation.
   integer(I_P)             :: s1, s2, m, l, q                 !< Counters.
   integer(I_P)             :: f, f1, f2                       !< Faces to be computed.
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -93,6 +93,7 @@ contains
       endif
       do s1 = 0, S - 1  ! stencils loop
         do s2 = 0, S - 1  ! values loop
+          coeff = 0._R_P
           do m = s2 + 1, S
             den = 1._R_P
             num = 0._R_P
@@ -110,10 +111,9 @@ contains
               ! numerator sum
               num = num + num_prod
             enddo
-            frac = (num / den) * (stencil_coord(f,1 - S + s1 + s2) - stencil_coord(f,1 - S + s1 + s2 - 1))
-            coeff = coeff + frac
+            coeff = coeff + (num / den)
           enddo
-          c(f,s2,s1) = coeff
+          c(f,s2,s1) = coeff * (stencil_coord(f,1 - S + s1 + s2 + 1) - stencil_coord(f,1 - S + s1 + s2))
         enddo
       enddo
     enddo
