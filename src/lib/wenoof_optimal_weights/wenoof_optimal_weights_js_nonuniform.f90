@@ -74,7 +74,7 @@ contains
   integer(I_P), intent(in) :: S                               !< Number of stencils used.
   real(R_P), allocatable   :: coef(:,:)                       !< Polynomial coefficients on the whole recontruction stencil.
   real(R_P)                :: coord_l, coord_r, coord_tar     !< Abscissas of the reconstruction points, left and right interfaces.
-  real(R_P)                :: stencil_coord(1:, - S:)         !< Abscissas of the whole interpolation stencil, [1:2, -S:-1+S].
+  real(R_P)                :: stencil_coord(- S:)             !< Abscissas of the whole interpolation stencil, [-S:-1+S].
   real(R_P)                :: den, num_prod, num, coeff       !< Intermediate values for coefficients evaluation.
   integer(I_P)             :: s1, s2, m, l, q                 !< Counters.
   integer(I_P)             :: f, f1, f2                       !< Faces to be computed.
@@ -98,20 +98,20 @@ contains
         do l = 0, 2*S - 1
           ! denominator
           if (l==m) cycle
-          den = den * (stencil_coord(f,- S + s1 + m) - stencil_coord(f,- S + s1 + l))
+          den = den * (stencil_coord(- S + s1 + m) - stencil_coord(- S + s1 + l))
           ! numerator
           ! numerator product
           num_prod = 1._R_P
           do q = 0, 2*S - 1
             if ((q==l).or.(q==m)) cycle
-            num_prod = num_prod * (coord_tar - stencil_coord(f,- S + s1 + q))
+            num_prod = num_prod * (coord_tar - stencil_coord(- S + s1 + q))
           enddo
           ! numerator sum
           num = num + num_prod
         enddo
         coeff = coeff + (num / den)
       enddo
-      coef(f,s2) = coeff * (stencil_coord(f,- S + s1 + s2 + 1) - stencil_coord(f,- S + s1 + s2))
+      coef(f,s2) = coeff * (stencil_coord(- S + s1 + s2 + 1) - stencil_coord(- S + s1 + s2))
     enddo
   enddo
   associate(opt => self%opt, poly_coef => weno_polynomials_js_nonuniform%coef)
