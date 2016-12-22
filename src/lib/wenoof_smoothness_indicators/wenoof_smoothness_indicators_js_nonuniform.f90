@@ -1,6 +1,6 @@
 module wenoof_smoothness_indicators_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
-!< Module providing Jiang-Shu and Gerolymos-Sénéchal-Vallet smoothness indicators for WENO schemes.
+!< Module providing smoothness indicators for WENO schemes on non-uniform meshes.
 !<
 !< @note The provided polynomials implement the smoothness indicators defined in *Grid adaptation with WENO schemes for non-uniform
 !< grids to solve convection-dominated partial differential equations*, J. Smit, M. van Sint Annaland, J. A. M. Kuipers,
@@ -17,12 +17,12 @@ use wenoof_smoothness_indicators_abstract
 implicit none
 private
 save
-public :: IS_js, associate_IS_js
+public :: IS_js_nonuniform, associate_IS_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 
 !-----------------------------------------------------------------------------------------------------------------------------------
-type, extends(IS) :: IS_js
-  !< Jiang-Shu and Gerolymos-Sénéchal-Vallet WENO smoothness indicators object.
+type, extends(IS) :: IS_js_nonuniform
+  !< Smoothness indicators for WENO schemes on non-uniform meshes object.
   !<
   !< @note The provided polynomials implement the smoothness indicators defined in *Grid adaptation with WENO schemes for non-uniform
   !< grids to solve convection-dominated partial differential equations*, J. Smit, M. van Sint Annaland, J. A. M. Kuipers,
@@ -33,7 +33,7 @@ type, extends(IS) :: IS_js
     procedure, pass(self), public :: create
     procedure, nopass,     public :: description
     procedure, pass(self), public :: compute
-endtype IS_js
+endtype IS_js_nonuniform
 !-----------------------------------------------------------------------------------------------------------------------------------
 contains
   ! public, non TBP
@@ -70,8 +70,8 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO smoothness indicators coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(IS_js), intent(inout) :: self              !< WENO smoothness indicators.
-  integer(I_P), intent(in)    :: S                 !< Number of stencils used.
+  class(IS_js_nonuniform), intent(inout) :: self   !< WENO smoothness indicators.
+  integer(I_P),            intent(in)    :: S      !< Number of stencils used.
   real(R_P)                   :: coord(- S:)       !< Abscissas of the whole interpolation stencil, [-S:-1+S].
   real(R_P)                   :: a, b, d, e        !< Intermediate values.
   !---------------------------------------------------------------------------------------------------------------------------------
@@ -168,9 +168,6 @@ contains
 
   !---------------------------------------------------------------------------------------------------------------------------------
   string = 'WENO smoothness indicators'//nl
-!< @note The provided polynomials implement the smoothness indicators defined in *
-!< *, ,
-!<
   string = string//'  Based on the work by J. Smit, M. van Sint Annaland and J. A. M. Kuipers "Grid adaptation with WENO '// &
            'schemes for non-uniform grids to solve convection-dominated partial differential equations", see Chemical '// &
            'Engineering Science, vol. 60, issue 10, pp. 2609--2619, doi:10.1016/j.ces.2004.12.017'//nl
@@ -187,12 +184,12 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Compute the partial value of the smoothness indicator of a single WENO interpolating polynomial for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(IS_js), intent(inout) :: self                    !< WENO smoothness indicator.
-  integer(I_P), intent(in)    :: S                       !< Number of stencils actually used.
-  real(R_P),    intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
-  integer(I_P), intent(in)    :: f1, f2, ff              !< Faces to be computed.
-  real(R_P)                   :: coef(1:2, 0:S-1, 0:S-1) !< Coefficients of the smoothness indicators.
-  integer(I_P)                :: s1, s2, s3, f           !< Counters
+  class(IS_js_nonuniform), intent(inout) :: self                    !< WENO smoothness indicator.
+  integer(I_P),            intent(in)    :: S                       !< Number of stencils actually used.
+  real(R_P),               intent(in)    :: stencil(1:, 1 - S:)     !< Stencil used for the interpolation, [1:2, 1-S:-1+S].
+  integer(I_P),            intent(in)    :: f1, f2, ff              !< Faces to be computed.
+  real(R_P)                              :: coef(1:2, 0:S-1, 0:S-1) !< Coefficients of the smoothness indicators.
+  integer(I_P)                           :: s1, s2, s3, f           !< Counters
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
