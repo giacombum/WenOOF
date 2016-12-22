@@ -27,6 +27,7 @@ type, extends(IS) :: IS_js_nonuniform
   !< @note The provided polynomials implement the smoothness indicators defined in *Grid adaptation with WENO schemes for non-uniform
   !< grids to solve convection-dominated partial differential equations*, J. Smit, M. van Sint Annaland, J. A. M. Kuipers,
   !< Chemical Engineering Science, vol. 60, issue 10, pp. 2609--2619, doi:10.1016/j.ces.2004.12.017
+  real(R_P) :: coord_target(1:2) !< Target coordinates of the interpolation: 1 => left interface (i-1/2), 2 => right interface (i+1/2)
   private
   contains
     procedure, pass(self), public :: destroy
