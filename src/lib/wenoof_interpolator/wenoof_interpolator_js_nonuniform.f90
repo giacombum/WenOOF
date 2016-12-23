@@ -174,14 +174,14 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Return a string describing the WENO interpolator upwind.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(wenoof_interpolator_upwind_nonuniform), intent(in)  :: self   !< WENO interpolator.
-  character(len=:), allocatable,     intent(out) :: string            !< String returned.
-  character(len=:), allocatable                  :: dummy_string      !< Dummy string.
-  character(len=1), parameter                    :: nl=new_line('a')  !< New line character.
+  class(wenoof_interpolator_upwind_nonuniform), intent(in)  :: self              !< WENO interpolator.
+  character(len=:), allocatable,                intent(out) :: string            !< String returned.
+  character(len=:), allocatable                             :: dummy_string      !< Dummy string.
+  character(len=1), parameter                               :: nl=new_line('a')  !< New line character.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
-  string = 'WENO upwind-biased interpolator'//nl
+  string = 'WENO upwind-biased interpolator for non-uniform grids'//nl
   string = string//'  Based on the scheme proposed by Jiang and Shu "Efficient Implementation of Weighted ENO Schemes", see '// &
            'JCP, 1996, vol. 126, pp. 202--228, doi:10.1006/jcph.1996.0130'//nl
   string = string//'  Provide a formal order of accuracy equals to: '//trim(str(2*self%S - 1, .true.))//nl
@@ -214,10 +214,10 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Return a string describing the WENO interpolator upwind.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(wenoof_interpolator_upwind_nonuniform), intent(inout) :: self   !< WENO interpolator.
-  integer(I_P),                      intent(in)    :: error_code        !< Error code.
-  character(len=:), allocatable                    :: string            !< Printed string.
-  character(len=1), parameter                      :: nl=new_line('a')  !< New line character.
+  class(wenoof_interpolator_upwind_nonuniform), intent(inout) :: self              !< WENO interpolator.
+  integer(I_P),                                 intent(in)    :: error_code        !< Error code.
+  character(len=:), allocatable                               :: string            !< Printed string.
+  character(len=1), parameter                                 :: nl=new_line('a')  !< New line character.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------

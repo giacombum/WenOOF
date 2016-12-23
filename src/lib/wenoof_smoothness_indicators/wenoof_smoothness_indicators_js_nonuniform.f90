@@ -71,10 +71,10 @@ contains
   !---------------------------------------------------------------------------------------------------------------------------------
   !< Create WENO smoothness indicators coefficients for non uniform grids.
   !---------------------------------------------------------------------------------------------------------------------------------
-  class(IS_js_nonuniform), intent(inout) :: self   !< WENO smoothness indicators.
-  integer(I_P),            intent(in)    :: S      !< Number of stencils used.
-  real(R_P)                   :: coord(- S:)       !< Abscissas of the whole interpolation stencil, [-S:-1+S].
-  real(R_P)                   :: a, b, d, e        !< Intermediate values.
+  class(IS_js_nonuniform), intent(inout) :: self              !< WENO smoothness indicators.
+  integer(I_P),            intent(in)    :: S                 !< Number of stencils used.
+  real(R_P)                              :: coord(- S:)       !< Abscissas of the whole interpolation stencil, [-S:-1+S].
+  real(R_P)                              :: a, b, d, e        !< Intermediate values.
   !---------------------------------------------------------------------------------------------------------------------------------
 
   !---------------------------------------------------------------------------------------------------------------------------------
